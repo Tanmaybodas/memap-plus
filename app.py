@@ -21,27 +21,264 @@ st.set_page_config(
     page_title="MeMap+ — Digital Footprint & Impersonation Analyzer",
     page_icon="🕸️",
     layout="wide",
+    initial_sidebar_state="expanded",
 )
 
-PRIMARY = "#3B82F6"
-OK = "#22c55e"
-WARN = "#f59e0b"
-BAD = "#ef4444"
+# Modern color palette
+PRIMARY = "#6366f1"  # Indigo
+PRIMARY_DARK = "#4f46e5"
+SECONDARY = "#8b5cf6"  # Violet
+ACCENT = "#06b6d4"  # Cyan
+SUCCESS = "#10b981"  # Emerald
+WARNING = "#f59e0b"  # Amber
+DANGER = "#ef4444"  # Red
+DARK = "#1f2937"  # Gray-800
+LIGHT = "#f9fafb"  # Gray-50
+NEUTRAL = "#6b7280"  # Gray-500
 
+# Custom CSS for modern UI
+st.markdown("""
+<style>
+    /* Global Styles */
+    .main {
+        padding: 2rem 1rem;
+    }
+    
+    /* Header Styling */
+    .main-header {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        padding: 3rem 2rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+    }
+    
+    .main-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin: 0;
+        background: linear-gradient(45deg, #ffffff, #e0e7ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .main-subtitle {
+        font-size: 1.2rem;
+        margin-top: 0.5rem;
+        opacity: 0.9;
+        font-weight: 400;
+    }
+    
+    /* Card Styling */
+    .feature-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    /* Button Styling */
+    .stButton > button {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6);
+    }
+    
+    /* Input Styling */
+    .stTextInput > div > div > input {
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .stTextInput > div > div > input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    
+    /* Metric Cards */
+    .metric-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    /* Progress Bar */
+    .stProgress > div > div > div > div {
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+        border-radius: 10px;
+    }
+    
+    /* Sidebar Styling */
+    .css-1d391kg {
+        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+    
+    /* Alert Styling */
+    .stAlert {
+        border-radius: 12px;
+        border-left: 4px solid;
+    }
+    
+    /* Spinner Styling */
+    .stSpinner {
+        border: 3px solid #f3f4f6;
+        border-top: 3px solid #6366f1;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Risk Badge Styling */
+    .risk-high {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 700;
+        display: inline-block;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    }
+    
+    .risk-moderate {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 700;
+        display: inline-block;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+    }
+    
+    .risk-low {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 700;
+        display: inline-block;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+    
+    /* Profile Card Styling */
+    .profile-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .profile-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+    
+    .platform-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1rem;
+    }
+    
+    .github-icon { background: linear-gradient(135deg, #22c55e, #16a34a); }
+    .reddit-icon { background: linear-gradient(135deg, #f97316, #ea580c); }
+    .instagram-icon { background: linear-gradient(135deg, #a855f7, #9333ea); }
+</style>
+""", unsafe_allow_html=True)
+
+# Modern Header
 st.markdown(
-    "<h1 style='margin-bottom:0'>MeMap+</h1>"
-    "<div style='color:#9CA3AF;margin-top:0'>Visual Digital Footprint & Impersonation Analyzer</div>",
-    unsafe_allow_html=True,
+    """
+    <div class="main-header">
+        <h1 class="main-title">MeMap+</h1>
+        <p class="main-subtitle">Advanced Digital Footprint & Impersonation Analyzer</p>
+    </div>
+    """,
+    unsafe_allow_html=True
 )
 
 with st.sidebar:
-    st.header("Modes")
-    mode = st.radio("Select", ["Footprint", "Comparison"], index=0)
+    st.markdown("### 🎯 Analysis Mode")
+    mode = st.radio(
+        "Choose your analysis type:", 
+        ["🔍 Footprint Analysis", "⚖️ Comparison Analysis"], 
+        index=0,
+        label_visibility="collapsed"
+    )
+    
     st.markdown("---")
-    st.subheader("Options")
+    
+    st.markdown("### ⚙️ Settings")
     enable_imgs = os.getenv("ENABLE_IMAGE_SIMILARITY", "true").lower() == "true"
-    st.caption(f"Image similarity: {'enabled' if enable_imgs else 'disabled'}")
-    st.caption(f"Embeddings: {'enabled' if os.getenv('ENABLE_EMBEDDINGS','false').lower()=='true' else 'disabled'}")
+    enable_emb = os.getenv('ENABLE_EMBEDDINGS','false').lower()=='true'
+    friendly_graph = st.checkbox("Beginner-friendly graph labels", value=True)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Image Analysis", "✅" if enable_imgs else "❌")
+    with col2:
+        st.metric("AI Embeddings", "✅" if enable_emb else "❌")
+    
+    st.markdown("---")
+    
+    st.markdown("### 📊 Features")
+    st.markdown("")
+    st.markdown("• **Multi-platform Analysis**")
+    st.markdown("• **Real-time Similarity Detection**")
+    st.markdown("• **Visual Network Graphs**")
+    st.markdown("• **Privacy Risk Assessment**")
+    st.markdown("• **AI-Powered Insights**")
+    
+    st.markdown("---")
+    
+    st.markdown("### 💡 Tips")
+    st.info("💡 **Pro Tip:** Enable API keys in environment variables for enhanced data collection and analysis accuracy.")
 
 def collect_profiles(username: str) -> Dict[str, Profile]:
     profiles: Dict[str, Profile] = {}
@@ -63,33 +300,66 @@ def exposure_index(n_profiles: int, n_mentions: int) -> int:
 
 def risk_badge(score: float) -> str:
     if score >= 0.8:
-        return f"<span style='color:{BAD};font-weight:600'>High</span>"
+        return f"<span class='risk-high'>HIGH RISK</span>"
     if score >= 0.6:
-        return f"<span style='color:{WARN};font-weight:600'>Moderate</span>"
-    return f"<span style='color:{OK};font-weight:600'>Low</span>"
+        return f"<span class='risk-moderate'>MODERATE</span>"
+    return f"<span class='risk-low'>LOW RISK</span>"
 
 def show_profiles_cards(title: str, profiles: Dict[str, Profile]):
-    st.subheader(title)
+    st.markdown(f"### 📱 {title}")
     if not profiles:
-        st.info("No profiles found with current configuration.")
+        st.info("🔍 No profiles found with current configuration. Try enabling API keys for better results.")
         return
+    
     cols = st.columns(min(3, max(1, len(profiles))))
+    platform_icons = {
+        "github": "🐙",
+        "reddit": "🤖", 
+        "instagram": "📸"
+    }
+    
     i = 0
     for platform, p in profiles.items():
         with cols[i % len(cols)]:
-            st.markdown(f"**{platform.title()}**")
-            st.write(p.display_name or p.username)
+            icon = platform_icons.get(platform, "🌐")
+            
+            # Create a styled profile card
+            st.markdown(
+                f"""
+                <div class="profile-card">
+                    <div class="platform-icon {platform}-icon">
+                        {icon}
+                    </div>
+                    <h4 style="margin: 0; color: #1f2937;">{platform.title()}</h4>
+                    <h3 style="margin: 0.5rem 0; color: #6366f1;">{p.display_name or p.username}</h3>
+                    {f'<p style="color: #6b7280; font-size: 0.9rem; margin: 0.5rem 0;">{p.bio}</p>' if p.bio else ''}
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            
+            # Add the profile link using Streamlit's native markdown
             if p.profile_url:
-                st.write(p.profile_url)
-            if p.bio:
-                st.caption(p.bio)
+                st.markdown(f"**🔗 [View {platform.title()} Profile]({p.profile_url})**")
         i += 1
 
-if mode == "Footprint":
-    st.subheader("Footprint Mode")
-    username = st.text_input("Enter a username (e.g., octocat):", value="", placeholder="yourhandle")
-    if st.button("Search") and username.strip():
-        with st.spinner("Collecting profiles..."): 
+if "Footprint" in mode:
+    st.markdown("### 🔍 Digital Footprint Analysis")
+    st.markdown("Discover and analyze a user's digital presence across multiple platforms.")
+    
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        username = st.text_input(
+            "Enter username to analyze:", 
+            value="", 
+            placeholder="e.g., octocat, john_doe",
+            help="Enter a username without @ symbol"
+        )
+    with col2:
+        search_clicked = st.button("🔍 Analyze", type="primary", use_container_width=True)
+    
+    if search_clicked and username.strip():
+        with st.spinner(""): 
             profiles = collect_profiles(username.strip())
             mentions = web_mentions(username.strip(), num_results=5)
 
@@ -97,40 +367,101 @@ if mode == "Footprint":
 
         # Graph
         if profiles:
-            html = build_footprint_html(username.strip(), profiles)
-            components.html(html, height=620, scrolling=True)
+            html = build_footprint_html(username.strip(), profiles, friendly=friendly_graph)
+            components.html(html, height=650, scrolling=True)
 
-        # Mentions + Exposure
-        st.subheader("Web Mentions")
-        if mentions:
-            for m in mentions:
-                st.write(f"- [{m.get('title')}]({m.get('link')})")
-                if m.get("snippet"):
-                    st.caption(m["snippet"]) 
-        else:
-            st.caption("No mentions found or Google CSE not configured.")
-
+        # Privacy Dashboard
+        st.markdown("### 📊 Privacy Exposure Dashboard")
+        
         idx = exposure_index(len(profiles), len(mentions))
-        st.subheader("Privacy Dashboard")
-        c1, c2 = st.columns(2)
-        with c1:
-            st.metric("Profiles Found", len(profiles))
-        with c2:
-            st.metric("Web Mentions", len(mentions))
+        
+        # Enhanced metrics with better styling
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <h2 style="color: #6366f1; margin: 0;">{len(profiles)}</h2>
+                    <p style="margin: 0; color: #6b7280;">Platform Profiles</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        with col2:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <h2 style="color: #8b5cf6; margin: 0;">{len(mentions)}</h2>
+                    <p style="margin: 0; color: #6b7280;">Web Mentions</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        with col3:
+            risk_color = DANGER if idx >= 70 else WARNING if idx >= 40 else SUCCESS
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <h2 style="color: {risk_color}; margin: 0;">{idx}%</h2>
+                    <p style="margin: 0; color: #6b7280;">Exposure Index</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        
+        # Enhanced progress bar
+        st.markdown(f"**Overall Privacy Risk Level: {idx}%**")
         st.progress(idx / 100.0, text=f"Exposure Index: {idx}/100")
+        
+        # Risk interpretation
+        if idx >= 70:
+            st.error("⚠️ **High Risk**: Significant digital footprint detected. Consider privacy settings review.")
+        elif idx >= 40:
+            st.warning("⚡ **Moderate Risk**: Moderate digital presence. Monitor your online visibility.")
+        else:
+            st.success("✅ **Low Risk**: Minimal digital footprint. Good privacy practices maintained.")
+        
+        # Web Mentions Section
+        if mentions:
+            st.markdown("### 🌐 Web Mentions")
+            for i, m in enumerate(mentions, 1):
+                with st.expander(f"📄 {m.get('title', 'Untitled')} - Mention #{i}"):
+                    st.markdown(f"**🔗 [Open Link]({m.get('link')})**")
+                    if m.get("snippet"):
+                        st.markdown(f"*{m['snippet']}*")
+        else:
+            st.info("🔍 No web mentions found. This could be due to limited search results or Google CSE not configured.")
 
 else:
-    st.subheader("Comparison Mode")
-    c1, c2 = st.columns(2)
-    with c1:
-        user_a = st.text_input("User A", value="", placeholder="e.g., tanmaybodas")
-    with c2:
-        user_b = st.text_input("User B", value="", placeholder="e.g., tanmaybodas_")
+    st.markdown("### ⚖️ Impersonation Comparison Analysis")
+    st.markdown("Compare two users to detect potential impersonation or account similarities.")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("#### 👤 User A")
+        user_a = st.text_input(
+            "Username A:", 
+            value="", 
+            placeholder="e.g., tanmaybodas",
+            key="user_a",
+            help="First user to analyze"
+        )
+    with col2:
+        st.markdown("#### 👤 User B")
+        user_b = st.text_input(
+            "Username B:", 
+            value="", 
+            placeholder="e.g., tanmaybodas_",
+            key="user_b",
+            help="Second user to compare"
+        )
 
-    if st.button("Compare") and user_a.strip() and user_b.strip():
+    compare_clicked = st.button("⚖️ Compare Users", type="primary", use_container_width=True)
+    
+    if compare_clicked and user_a.strip() and user_b.strip():
         ua = user_a.strip()
         ub = user_b.strip()
-        with st.spinner("Fetching and comparing..."):
+        with st.spinner(""):
             profiles_a = collect_profiles(ua)
             profiles_b = collect_profiles(ub)
 
@@ -182,53 +513,176 @@ else:
             imp_like = (0.4 * overall_bio) + (0.3 * overall_username) + (0.2 * mutual_presence) + (0.1 * (img_sim_val or 0.0))
             imp_like = max(0.0, min(1.0, imp_like))
 
-        # Metrics panel
+        # Enhanced metrics panel
+        st.markdown("### 📊 Similarity Analysis Results")
+        
         m1, m2, m3, m4 = st.columns(4)
+        
         with m1:
-            st.metric("Bio Similarity", f"{int(overall_bio*100)}%")
+            bio_color = DANGER if overall_bio >= 0.8 else WARNING if overall_bio >= 0.6 else SUCCESS
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <h2 style="color: {bio_color}; margin: 0;">{int(overall_bio*100)}%</h2>
+                    <p style="margin: 0; color: #6b7280;">Bio Similarity</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        
         with m2:
-            st.metric("Username Similarity", f"{int(overall_username*100)}%")
+            user_color = DANGER if overall_username >= 0.9 else WARNING if overall_username >= 0.75 else SUCCESS
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <h2 style="color: {user_color}; margin: 0;">{int(overall_username*100)}%</h2>
+                    <p style="margin: 0; color: #6b7280;">Username Similarity</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        
         with m3:
-            st.metric("Mutual Platform Presence", f"{int(mutual_presence*100)}%")
+            presence_color = DANGER if mutual_presence >= 0.8 else WARNING if mutual_presence >= 0.5 else SUCCESS
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <h2 style="color: {presence_color}; margin: 0;">{int(mutual_presence*100)}%</h2>
+                    <p style="margin: 0; color: #6b7280;">Platform Presence</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        
         with m4:
             if img_sim_val is not None:
-                st.metric("Profile Image Similarity", f"{int(img_sim_val*100)}%")
+                img_color = DANGER if img_sim_val >= 0.8 else WARNING if img_sim_val >= 0.6 else SUCCESS
+                st.markdown(
+                    f"""
+                    <div class="metric-card">
+                        <h2 style="color: {img_color}; margin: 0;">{int(img_sim_val*100)}%</h2>
+                        <p style="margin: 0; color: #6b7280;">Image Similarity</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
             else:
-                st.metric("Profile Image Similarity", "N/A")
+                st.markdown(
+                    f"""
+                    <div class="metric-card">
+                        <h2 style="color: #6b7280; margin: 0;">N/A</h2>
+                        <p style="margin: 0; color: #6b7280;">Image Similarity</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
-        st.markdown(f"Risk Level: {risk_badge(imp_like)} — Impersonation Likelihood {int(imp_like*100)}%", unsafe_allow_html=True)
+        # Risk Assessment
+        st.markdown("### ⚠️ Risk Assessment")
+        
+        col1, col2 = st.columns([2, 1])
+        with col1:
+            st.markdown(f"**Risk Level:** {risk_badge(imp_like)}", unsafe_allow_html=True)
+            st.markdown(f"**Impersonation Likelihood:** {int(imp_like*100)}%")
+        with col2:
+            if imp_like >= 0.8:
+                st.error("🚨 **HIGH ALERT**\nStrong impersonation indicators detected!")
+            elif imp_like >= 0.6:
+                st.warning("⚠️ **MODERATE RISK**\nSome concerning similarities found.")
+            else:
+                st.success("✅ **LOW RISK**\nMinimal impersonation indicators.")
 
-        # Insights
-        st.subheader("AI Insights")
+        # Enhanced AI Insights
+        st.markdown("### 🤖 AI-Powered Insights")
+        
         insights = []
+        insight_icons = []
+        
         if overall_bio >= 0.8:
             insights.append("Bio content highly similar — possible impersonation.")
+            insight_icons.append("🔴")
         elif overall_bio >= 0.6:
-            insights.append("Bios show notable overlap — investigate.")
+            insights.append("Bios show notable overlap — investigate further.")
+            insight_icons.append("🟡")
+            
         if overall_username >= 0.9:
             insights.append("Usernames nearly identical — typical impersonation pattern.")
+            insight_icons.append("🔴")
         elif overall_username >= 0.75:
             insights.append("Usernames share a strong root — could be related accounts.")
+            insight_icons.append("🟡")
+            
         if mutual_presence >= 0.5:
             insights.append("Strong mutual platform presence detected.")
+            insight_icons.append("🔵")
+            
         if img_sim_val is not None:
             if img_sim_val >= 0.8:
                 insights.append("Profile images look very similar.")
+                insight_icons.append("🔴")
             elif img_sim_val >= 0.6:
                 insights.append("Profile images share some visual similarity.")
+                insight_icons.append("🟡")
 
         if insights:
-            for i in insights:
-                st.write(f"- {i}")
+            for i, (insight, icon) in enumerate(zip(insights, insight_icons)):
+                st.markdown(
+                    f"""
+                    <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; margin: 0.5rem 0; border-left: 4px solid #6366f1;">
+                        <p style="margin: 0; font-weight: 500;">{icon} {insight}</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
         else:
-            st.caption("No strong signals detected with current data.")
+            st.info("🔍 No strong impersonation signals detected with current data. This is a good sign!")
+            
+        # Additional recommendations
+        st.markdown("### 💡 Recommendations")
+        if imp_like >= 0.7:
+            st.markdown(
+                """
+                - **Immediate Action Required**: Report potential impersonation
+                - **Document Evidence**: Screenshot all similar profiles
+                - **Platform Reporting**: Use platform-specific reporting tools
+                - **Legal Consultation**: Consider legal advice if significant harm
+                """
+            )
+        elif imp_like >= 0.4:
+            st.markdown(
+                """
+                - **Monitor Closely**: Keep an eye on both accounts
+                - **Gather Evidence**: Document any suspicious behavior
+                - **Report if Needed**: Report if impersonation is confirmed
+                """
+            )
+        else:
+            st.markdown(
+                """
+                - **Low Risk**: Continue normal monitoring
+                - **Good Practices**: Maintain unique usernames across platforms
+                """
+            )
 
         # Graph
-        html = build_comparison_html(ua, ub, profiles_a, profiles_b, platform_scores)
-        components.html(html, height=620, scrolling=True)
+        html = build_comparison_html(ua, ub, profiles_a, profiles_b, platform_scores, friendly=friendly_graph)
+        components.html(html, height=650, scrolling=True)
 
+# Footer
+st.markdown("---")
 st.markdown(
-    "<div style='color:#6B7280;margin-top:2rem'>Note: Data is best-effort from public sources. "
-    "APIs may rate-limit; app degrades gracefully when a source is unavailable.</div>",
-    unsafe_allow_html=True,
+    """
+    <div style="text-align: center; color: #6b7280; margin-top: 2rem; padding: 1rem; background: #f8fafc; border-radius: 12px;">
+        <h4 style="color: #6366f1; margin-bottom: 0.5rem;">🔒 Privacy & Security Notice</h4>
+        <p style="margin: 0; font-size: 0.9rem;">
+            Data analysis is performed using publicly available information only. 
+            APIs may rate-limit; the application gracefully handles unavailable sources. 
+            No private data is stored or transmitted.
+        </p>
+        <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem; opacity: 0.8;">
+            MeMap+ v1.0 | Built with ❤️ for digital security awareness
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True
 )

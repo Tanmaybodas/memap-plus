@@ -133,3 +133,4 @@ MeMapPlus/
 1) Footprint Mode: search “octocat” → show graph + mentions + exposure index.
 2) Comparison Mode: “octocat” vs “0ctocat” → show similarity scores + risk level.
 3) Close with privacy insights and next steps (face recognition, more platforms).
+HIHIIIHI
