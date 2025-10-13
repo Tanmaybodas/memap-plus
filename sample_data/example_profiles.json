@@ -1,0 +1,11 @@
+{
+  "octocat": {
+    "github": {
+      "username": "octocat",
+      "display_name": "The Octocat",
+      "bio": "Just a test account",
+      "profile_url": "https://github.com/octocat",
+      "avatar_url": "https://github.com/octocat.png"
+    }
+  }
+}
