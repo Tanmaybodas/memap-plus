@@ -401,6 +401,8 @@ if "Footprint" in mode:
                     html = graph_from_api(data.get("nodes", []), data.get("edges", []))
                     components.html(html, height=650, scrolling=True)
                     used_api = True
+                    # Also fetch local profiles so the profile cards populate
+                    profiles = collect_profiles(username.strip())
                 except Exception as e:
                     st.warning(f"API unavailable, falling back to local: {e}")
             if not used_api:
