@@ -319,7 +319,8 @@ def show_profiles_cards(title: str, profiles: Dict[str, Profile]):
     platform_icons = {
         "github": "🐙",
         "reddit": "🤖", 
-        "instagram": "📸"
+        "instagram": "📸",
+        "twitter": "🐦",
     }
     
     i = 0
@@ -379,11 +380,12 @@ if "Footprint" in mode:
     
     col1, col2 = st.columns([3, 1])
     with col1:
+        search_mode = st.radio("Search by", ["Username", "Full name"], horizontal=True)
         username = st.text_input(
-            "Enter username to analyze:", 
+            "Enter value:", 
             value="", 
-            placeholder="e.g., octocat, john_doe",
-            help="Enter a username without @ symbol"
+            placeholder="e.g., octocat or 'Shah Rukh Khan'",
+            help="Search can be by exact username or full name"
         )
     with col2:
         search_clicked = st.button("🔍 Analyze", type="primary", use_container_width=True)
@@ -395,32 +397,60 @@ if "Footprint" in mode:
             used_api = False
             if use_api_backend:
                 try:
-                    r = requests.get(f"{api_base_url}/footprint", params={"username": username.strip()}, timeout=30)
+                    params = {"username": username.strip()} if search_mode == "Username" else {"full_name": username.strip()}
+                    r = requests.get(f"{api_base_url}/footprint", params=params, timeout=90)
                     r.raise_for_status()
                     data = r.json()
-                    html = graph_from_api(data.get("nodes", []), data.get("edges", []))
-                    components.html(html, height=650, scrolling=True)
                     used_api = True
-                    # Also fetch local profiles so the profile cards populate
-                    profiles = collect_profiles(username.strip())
+                    # Build profile cards directly from API nodes
+                    profiles_api: Dict[str, Profile] = {}
+                    for n in data.get("nodes", []):
+                        nid = n.get("id", "")
+                        if nid.startswith("user:"):
+                            continue
+                        # expected id format: "platform:username"
+                        parts = nid.split(":", 1)
+                        if len(parts) != 2:
+                            continue
+                        platform, uname = parts[0], parts[1]
+                        meta = n.get("meta") or {}
+                        profiles_api[platform] = Profile(
+                            platform=platform,
+                            username=uname,
+                            display_name=meta.get("display_name") or uname,
+                            bio=meta.get("bio"),
+                            followers=meta.get("followers"),
+                            profile_url=meta.get("url"),
+                            avatar_url=meta.get("avatar"),
+                        )
+                    # Prefer local graph for consistency when local fetch succeeds; otherwise use API graph
+                    if profiles_api:
+                        profiles = profiles_api
+                        html_api = graph_from_api(data.get("nodes", []), data.get("edges", []))
+                        components.html(html_api, height=650, scrolling=True)
+                    else:
+                        profiles = collect_profiles(username.strip())
+                        html_local = build_footprint_html(username.strip(), profiles, friendly=friendly_graph)
+                        components.html(html_local, height=650, scrolling=True)
                 except Exception as e:
                     st.warning(f"API unavailable, falling back to local: {e}")
             if not used_api:
-                profiles = collect_profiles(username.strip())
+                # local mode supports only username; if a full name was provided, keep it simple: try heuristics here too
+                handle = username.strip()
+                profiles = collect_profiles(handle)
                 html = build_footprint_html(username.strip(), profiles, friendly=friendly_graph)
                 components.html(html, height=650, scrolling=True)
             # mentions shown regardless
             mentions = web_mentions(username.strip(), num_results=5)
 
+        # Show profile cards once
         show_profiles_cards("Profiles", profiles)
 
-        # Profiles cards only if we have local profiles
-        if profiles:
-            show_profiles_cards("Profiles", profiles)
+        # (cards already shown above)
 
         # Privacy Dashboard
         st.markdown("### 📊 Privacy Exposure Dashboard")
-        
+
         idx = exposure_index(len(profiles), len(mentions))
         
         # Enhanced metrics with better styling
@@ -515,12 +545,15 @@ else:
             profiles_b = {}
             if use_api_backend:
                 try:
-                    r = requests.get(f"{api_base_url}/compare", params={"user_a": ua, "user_b": ub}, timeout=45)
+                    r = requests.get(f"{api_base_url}/compare", params={"user_a": ua, "user_b": ub}, timeout=90)
                     r.raise_for_status()
                     data = r.json()
                     html_api = graph_from_api(data.get("nodes", []), data.get("edges", []))
                     components.html(html_api, height=650, scrolling=True)
                     used_api = True
+                    # Also fetch local profiles for details consistency
+                    profiles_a = collect_profiles(ua)
+                    profiles_b = collect_profiles(ub)
                 except Exception as e:
                     st.warning(f"API unavailable, falling back to local: {e}")
             if not used_api:
@@ -656,7 +689,7 @@ else:
 
         # Enhanced AI Insights
         st.markdown("### 🤖 AI-Powered Insights")
-        
+
         insights = []
         insight_icons = []
         

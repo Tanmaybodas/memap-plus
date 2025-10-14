@@ -8,6 +8,7 @@ _PLATFORM_COLORS = {
     "github": "#22c55e",
     "reddit": "#f97316",
     "instagram": "#a855f7",
+    "twitter": "#60a5fa",
     "mentions": "#60a5fa",
 }
 
@@ -137,9 +138,11 @@ def build_footprint_html(
       <div class="row"><span class="chip" style="background:#22c55e"></span> GitHub</div>
       <div class="row"><span class="chip" style="background:#a855f7"></span> Instagram</div>
       <div class="row"><span class="chip" style="background:#f97316"></span> Reddit</div>
+      <div class="row"><span class="chip" style="background:#60a5fa"></span> Twitter</div>
       <hr/>
-      <div class="row">Lines connect your identity to platform profiles.</div>
-      <div class="row">Hover a node to see detailed profile information.</div>
+      <div class="row">Nodes = accounts. Center node is the searched identity.</div>
+      <div class="row">Edges = connections from identity to platform profiles.</div>
+      <div class="row">Hover a node for: display name, bio, followers, and profile link.</div>
     """
     return _inject_overlay(html, legend)
 
