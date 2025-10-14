@@ -1,5 +1,6 @@
 import os
 from typing import Dict, Optional
+import requests
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -13,6 +14,7 @@ from src.data.web_search import web_mentions
 from src.similarity.text_similarity import compare_usernames, bio_similarity
 from src.similarity.image_similarity import image_similarity
 from src.graph.graph_builder import build_footprint_html, build_comparison_html
+from pyvis.network import Network
 
 # Load .env early
 load_dotenv()
@@ -258,7 +260,9 @@ with st.sidebar:
     enable_imgs = os.getenv("ENABLE_IMAGE_SIMILARITY", "true").lower() == "true"
     enable_emb = os.getenv('ENABLE_EMBEDDINGS','false').lower()=='true'
     friendly_graph = st.checkbox("Beginner-friendly graph labels", value=True)
-    
+    use_api_backend = st.checkbox("Use API backend (FastAPI)", value=True)
+    api_base_url = st.text_input("API Base URL", value=os.getenv("API_BASE_URL", "http://localhost:8000"), help="FastAPI server base URL")
+
     col1, col2 = st.columns(2)
     with col1:
         st.metric("Image Analysis", "✅" if enable_imgs else "❌")
@@ -343,6 +347,32 @@ def show_profiles_cards(title: str, profiles: Dict[str, Profile]):
                 st.markdown(f"**🔗 [View {platform.title()} Profile]({p.profile_url})**")
         i += 1
 
+def graph_from_api(nodes, edges) -> str:
+    net = Network(height="650px", width="100%", bgcolor="#0f172a", font_color="#e2e8f0")
+    for n in nodes:
+        nid = n.get("id")
+        label = n.get("label", nid)
+        group = n.get("group")
+        meta = n.get("meta") or {}
+        title_parts = []
+        if meta.get("display_name"):
+            title_parts.append(str(meta.get("display_name")))
+        if meta.get("bio"):
+            title_parts.append(str(meta.get("bio")))
+        if meta.get("url"):
+            title_parts.append(str(meta.get("url")))
+        title = "\n".join(title_parts)
+        net.add_node(nid, label=label, title=title, group=group)
+    for e in edges:
+        net.add_edge(e.get("source"), e.get("target"), title=e.get("label"), value=e.get("weight"))
+    net.set_options("""
+{
+  "nodes": { "font": { "color": "#e2e8f0" } },
+  "edges": { "color": { "color": "#64748b" } }
+}
+""")
+    return net.generate_html(notebook=False)
+
 if "Footprint" in mode:
     st.markdown("### 🔍 Digital Footprint Analysis")
     st.markdown("Discover and analyze a user's digital presence across multiple platforms.")
@@ -359,16 +389,32 @@ if "Footprint" in mode:
         search_clicked = st.button("🔍 Analyze", type="primary", use_container_width=True)
     
     if search_clicked and username.strip():
-        with st.spinner(""): 
-            profiles = collect_profiles(username.strip())
+        with st.spinner(""):
+            profiles = {}
+            mentions = []
+            used_api = False
+            if use_api_backend:
+                try:
+                    r = requests.get(f"{api_base_url}/footprint", params={"username": username.strip()}, timeout=30)
+                    r.raise_for_status()
+                    data = r.json()
+                    html = graph_from_api(data.get("nodes", []), data.get("edges", []))
+                    components.html(html, height=650, scrolling=True)
+                    used_api = True
+                except Exception as e:
+                    st.warning(f"API unavailable, falling back to local: {e}")
+            if not used_api:
+                profiles = collect_profiles(username.strip())
+                html = build_footprint_html(username.strip(), profiles, friendly=friendly_graph)
+                components.html(html, height=650, scrolling=True)
+            # mentions shown regardless
             mentions = web_mentions(username.strip(), num_results=5)
 
         show_profiles_cards("Profiles", profiles)
 
-        # Graph
+        # Profiles cards only if we have local profiles
         if profiles:
-            html = build_footprint_html(username.strip(), profiles, friendly=friendly_graph)
-            components.html(html, height=650, scrolling=True)
+            show_profiles_cards("Profiles", profiles)
 
         # Privacy Dashboard
         st.markdown("### 📊 Privacy Exposure Dashboard")
@@ -462,8 +508,22 @@ else:
         ua = user_a.strip()
         ub = user_b.strip()
         with st.spinner(""):
-            profiles_a = collect_profiles(ua)
-            profiles_b = collect_profiles(ub)
+            used_api = False
+            profiles_a = {}
+            profiles_b = {}
+            if use_api_backend:
+                try:
+                    r = requests.get(f"{api_base_url}/compare", params={"user_a": ua, "user_b": ub}, timeout=45)
+                    r.raise_for_status()
+                    data = r.json()
+                    html_api = graph_from_api(data.get("nodes", []), data.get("edges", []))
+                    components.html(html_api, height=650, scrolling=True)
+                    used_api = True
+                except Exception as e:
+                    st.warning(f"API unavailable, falling back to local: {e}")
+            if not used_api:
+                profiles_a = collect_profiles(ua)
+                profiles_b = collect_profiles(ub)
 
             # Platform similarity
             platform_scores: Dict[str, float] = {}
@@ -664,9 +724,10 @@ else:
                 """
             )
 
-        # Graph
-        html = build_comparison_html(ua, ub, profiles_a, profiles_b, platform_scores, friendly=friendly_graph)
-        components.html(html, height=650, scrolling=True)
+        # Graph (local only)
+        if not use_api_backend:
+            html = build_comparison_html(ua, ub, profiles_a, profiles_b, platform_scores, friendly=friendly_graph)
+            components.html(html, height=650, scrolling=True)
 
 # Footer
 st.markdown("---")
